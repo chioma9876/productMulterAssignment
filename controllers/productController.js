@@ -114,14 +114,25 @@ exports.getAll = async(req, res) => {
 exports.deleteProduct = async(req, res) => {
     try {
         const {id} = req.params
-        
-        const deleteProduct = await productModel.destroy({where: {id}})
+
+         //check if a new file is being uploaded
+        if (req.file) {
+            //check if the old file exists
+            const oldImageExists = fs.existsSync(product.ProductImage);
+            if (oldImageExists) {
+                //delete the old file and update the new file into the product object
+                productData.ProductImage = req.file.path;
+                fs.unlinkSync(product.ProductImage)
+            }
+        }
+         const deleteProduct = await productModel.destroy({where: {id}})
 
         if (!deleteProduct) {
             return res.status(404).json({
                 message: 'product cannot be deleted'
             })
         }
+        
         res.status(200).json({
             message: 'product deleted successfully',
             data: deleteProduct
