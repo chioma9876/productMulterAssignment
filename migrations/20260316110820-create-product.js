@@ -12,8 +12,12 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      ProductImage: {
-        type: Sequelize.STRING,
+      ProductImages: {
+        type: Sequelize.JSON,
+        allowNull: false
+      },
+      imagePublicIds: {
+        type: Sequelize.JSON,
         allowNull: false
       },
       ProductDescription: {

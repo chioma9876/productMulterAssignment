@@ -15,10 +15,34 @@ Product.init(
         type: DataTypes.STRING,
         allowNull: false
       },
-      ProductImage: {
+      ProductImages: [{
         type: DataTypes.STRING,
-        allowNull: false
-      },
+        allowNull: false,
+
+        get(){
+          const value = this.getDataValue('ProductImages');
+          //parse the stored json string back into an array
+          return value ? JSON.parse(value): []
+        },
+        set(val){
+          //stringify the array into a json string before saving
+          this.setDataValue('ProductImages', JSON.stringify(val));
+        }
+      }],
+      imagePublicIds: [{
+        type: DataTypes.STRING,
+        allowNull: false,
+
+        get(){
+          const value = this.getDataValue('ProductImages');
+          //parse the stored json string back into an array
+          return value ? JSON.parse(value): []
+        },
+        set(val){
+          //stringify the array into a json string before saving
+          this.setDataValue('ProductImages', JSON.stringify(val));
+        }
+      }],
       ProductDescription: {
         type: DataTypes.STRING,
         allowNull: false

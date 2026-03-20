@@ -5,8 +5,8 @@ const { addProduct, updateProduct, getOne, getAll, deleteProduct } = require('..
 
 
 
-router.post('/addProduct', upload.single('productImage'), addProduct);
-router.patch('/updateProduct/:id', upload.single('productImage'), updateProduct);
+router.post('/addProduct', upload.array('ProductImages', 3), addProduct);
+router.patch('/updateProduct/:id', upload.array('ProductImages', 3), updateProduct);
 router.get('/product/:id', getOne);
 router.get('/products', getAll);
 router.delete('/deleteProduct/:id', deleteProduct)

@@ -1,18 +1,31 @@
 //import product model
 const productModel = require('../models/product');
-const fs = require('fs')
+const fs = require('fs');
+const cloudinary =require ('../config/cloudinary')
 
 exports.addProduct = async(req, res) => {
     try {
         const {productName, ProductDescription, productPrice} = req.body;
-        console.log('req file', req.file)
-        console.log(req.body);
+       const imagesPaths = req.files.map((img)=> img.path);
+
+       const images = [];
+       const imagePublicIds = [];
+
+       //upload each image to cloudinary and store the secure URL and public ID 
+       for (const path of imagesPaths) {
+        const result = await cloudinary.uploader.upload(path)
+        images.push(result.secure_url);
+        imagePublicIds.push(result.public_id);
+        fs.unlinkSync(path)
+       }
+      
         
         const productData = {
             productName,
             ProductDescription,
             productPrice,
-            ProductImage: req.file.path
+           ProductImages: images,
+           imagePublicIds
         };
 
         const product =await productModel.create(productData);
@@ -31,8 +44,9 @@ exports.addProduct = async(req, res) => {
 exports.updateProduct = async (req, res) => {
     try {
         const {id} = req.params;
-        const {productName, ProductDescription, productPrice} = req.body
-        const product = productModel.findByPk(id);
+        const {productName, ProductDescription, productPrice} = req.body;
+       
+        const product = await productModel.findByPk(id);
         if (!product) {
             return res.status(404).json({
                 message: 'Product not found'
@@ -45,14 +59,16 @@ exports.updateProduct = async (req, res) => {
         }
 
         //check if a new file is being uploaded
-        if (req.file) {
+        if (req.files) {
             //check if the old file exists
-            const oldImageExists = fs.existsSync(product.ProductImage);
-            if (oldImageExists) {
-                //delete the old file and update the new file into the product object
-                productData.ProductImage = req.file.path;
-                fs.unlinkSync(product.ProductImage)
-            }
+            product.ProductImages.forEach(element => {
+                const oldImagePath = fs.existsSync(element);
+                if(oldImagePath){
+                    fs.unlinkSync(element)
+                }
+            });
+
+            productData.ProductImages = req.files.map((img)=> img.path)
         }
 
        const updatedProduct = await productModel.update(productData, {where : {id}})
